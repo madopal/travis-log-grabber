@@ -17,7 +17,7 @@ class TravisDownloadTest():
     header_accept_plain = {'Accept': 'application/vnd.travis-ci.2+plain'}
     header_accept_text = {'Accept': 'text/plain'}
     header_length = {'Content-Length': 37}
-    header_user_agent = {'User-Agent': 'TravisTestLogOutput/1.0.0'}
+    header_user_agent = {'User-Agent': 'travis-log-grabber/1.0.0'}
     header_auth = {'Authorization': 'token'}
     url_base = "https://api.travis-ci.com"
     url_auth_path = "/auth/github"
