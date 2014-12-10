@@ -3,3 +3,9 @@
 
 # ignore any temp files
 *.*~
+
+# ignore any spreadsheets
+*.xls
+
+# ignore any json
+*.json
