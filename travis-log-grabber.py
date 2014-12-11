@@ -105,22 +105,33 @@ class TravisDownloadTest():
         print "py.test file, %d lines in data" % len(log_data)
         tests = {}
         test_lines = False
+        unmatched_line = False
         passes = 0
         fails = 0
+        test_type = ""
         for line in log_data:
             if test_lines:
     #            print line
                 if line.find("PASSED") != -1:
-                    line_parts = line.split("[32m")
-                    test_type = line_parts[0].split("::")[1].strip()
+                    if not unmatched_line:
+                        line_parts = line.split("[32m")
+                        test_type = line_parts[0].split("::")[1].strip()
+                        test_type = test_type.split()[0]
+                    else:
+                        unmatched_line = False
                     if test_type in tests:
                         test_type = test_type + "_"
                     tests[test_type] = self.test_results['master'][0]
                     passes = passes + 1
                     print "%d: %s - %s" % (passes, test_type, tests[test_type])
                 elif line.find("FAILED") != -1:
-                    line_parts = line.split("[31m")
-                    test_type = line_parts[0].split("::")[1].strip()
+                    if not unmatched_line:
+                        line_parts = line.split("[31m")
+                        test_type = line_parts[0].split("::")[1].strip()
+                        test_type = test_type.split()[0]
+                    else:
+                        unmatched_line = False
+                        
                     if test_type in tests:
                         test_type = test_type + "_"
                     tests[test_type] = self.test_results['master'][1]
@@ -128,7 +139,15 @@ class TravisDownloadTest():
                     print "%d: %s - %s" % (fails, test_type, tests[test_type])
                 elif line.find("FAILURES") != -1:
                     test_lines = False
-                
+                else:
+                    print "Line w/o results"
+                    if line.find("::") != -1:
+                        test_type = line.split("::")[1].strip()
+                        test_type = test_type.split()[0]
+                    else:
+                        test_type = "unknown test"
+                    unmatched_line = True
+
             else:
                 if line.find("test session starts") != -1:
                     test_lines = True
@@ -394,7 +413,7 @@ class TravisDownloadTest():
         # create the spreadsheet, spreadsheet filename, and first sheet
         wb = xlwt.Workbook()
         main_sheet = wb.add_sheet('Issues')
-        run_time = datetime.now()
+        run_time = datetime.utcnow()
         sheet_filename = "testResults_%04d-%02d-%02d.xls" % (run_time.year, run_time.month, run_time.day)
 
         # write the header line with the style
@@ -480,7 +499,7 @@ class TravisDownloadTest():
         wb.save(sheet_filename)
 
         # write json to file
-        print json.dumps(json_data, indent=4, sort_keys=True)
+#        print json.dumps(json_data, indent=4, sort_keys=True)
         simplejson.dump(json_data, json_file)
         json_file.close()
 
