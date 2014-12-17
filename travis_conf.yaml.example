@@ -1,0 +1,12 @@
+SETTINGS:
+  JSON_FILENAME:
+    test_report.json
+  JSON_PATH:
+    /path/to/save/json/file/to/
+
+REPOS:
+-[ORG1]:
+-  - repo1
+-  - repo2
+-[ORG2]:
+-  - repo3

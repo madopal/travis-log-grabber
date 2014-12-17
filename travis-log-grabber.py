@@ -28,6 +28,8 @@ class TravisDownloadTest():
     url_base_repo_path = "/repos/"
     log_path = "/logs/"
     travis_token = ""
+    json_filename = "test_report.json"
+    json_path = ""
     dupe_append_char = "."
     travis_link_url_base = "https://magnum.travis-ci.com/NCI-GDC/"
 
@@ -50,8 +52,17 @@ class TravisDownloadTest():
 
     def __init__(self):
         with open("travis_conf.yaml", 'r') as config_file:
-            self.repo_data = yaml.load(config_file)
-        
+            self.yaml_conf = yaml.load(config_file)
+            print self.yaml_conf
+            if 'REPOS' in self.yaml_conf:
+                self.repo_data = self.yaml_conf['REPOS']
+            if 'SETTINGS' in self.yaml_conf:
+                print self.yaml_conf['SETTINGS']
+                if 'JSON_PATH' in self.yaml_conf['SETTINGS']:
+                    self.json_path = self.yaml_conf['SETTINGS']['JSON_PATH']
+                if 'JSON_FILENAME' in self.yaml_conf['SETTINGS']:
+                    self.json_filename = self.yaml_conf['SETTINGS']['JSON_FILENAME']
+
         with open("github.key", 'r') as github_file:
             for line in github_file:
                 self.github_token['github_token'] = line.strip()
@@ -438,7 +449,13 @@ class TravisDownloadTest():
 
         cur_row = 1
 
-        json_file = open("test_result.json", "w")
+        if len(self.json_path.strip()):
+            json_full_filename = os.path.join(self.json_path,self.json_filename)
+        else:
+            json_full_filename = self.json_filename
+        print "JSON file: %s" % json_full_filename
+        json_file = open(json_full_filename, "w")
+#        json_file = open("test_result.json", "w")
         longest_date_str = 0
 
         # parse all the data into the spreadsheet/JSON doc
