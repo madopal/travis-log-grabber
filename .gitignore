@@ -9,3 +9,9 @@
 
 # ignore any json
 *.json
+
+# ignore yaml settings
+*.yaml
+
+# ignore key
+*.key
