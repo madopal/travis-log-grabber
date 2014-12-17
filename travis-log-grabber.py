@@ -29,6 +29,7 @@ class TravisDownloadTest():
     log_path = "/logs/"
     travis_token = ""
     dupe_append_char = "."
+    travis_link_url_base = "https://magnum.travis-ci.com/NCI-GDC/"
 
     all_logs = {}
 
@@ -44,7 +45,7 @@ class TravisDownloadTest():
         'signpost': ["GDC-156"],
         'psqlgraph': ["GDC-152"],
         'gdcapi': ["GDC-158"],
-        'portal-ui': ["OICR"],
+        'portal-ui': ["none"],
     }
 
     def __init__(self):
@@ -447,7 +448,8 @@ class TravisDownloadTest():
 
             issue_data['name'] = key
             issue_data['JIRA issue'] = self.issue_list[key][0]
-            issue_data['JIRA url'] = "https://jira.opensciencedatacloud.org/browse/%s" % self.issue_list[key][0]
+            if self.issue_list[key][0] != 'none':
+                issue_data['JIRA url'] = "https://jira.opensciencedatacloud.org/browse/%s" % self.issue_list[key][0]
 
             # set up hyperlinks in the spreadsheet
             jira_link = 'HYPERLINK("https://jira.opensciencedatacloud.org/browse/%s";"%s")' % (self.issue_list[key][0], self.issue_list[key][0])
@@ -457,6 +459,8 @@ class TravisDownloadTest():
             cur_data = value['data']
 
             issue_data['detailed results'] = cur_data
+
+            issue_data['travis_link'] = self.travis_link_url_base + key
 
             # set results as the strings in 'master'
             if cur_data['totals'][1] == 0:
