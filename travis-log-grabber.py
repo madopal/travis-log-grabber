@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import os, sys
 import requests
@@ -28,6 +28,7 @@ class TravisDownloadTest():
     url_base_repo_path = "/repos/"
     log_path = "/logs/"
     travis_token = ""
+    dupe_append_char = "."
 
     all_logs = {}
 
@@ -57,7 +58,11 @@ class TravisDownloadTest():
 
     #
     # Parsing routines for different test/log types
-    # regexes would be better in here when there is time
+    # TODO:
+    # - regexes would be better
+    # - storing of the tests in a dict is causing problems
+    # with duplicate names...it needs to be stored as a list of
+    # tuples 
     #
 
     # parse_nose_tests - parses tests run with nose
@@ -74,15 +79,15 @@ class TravisDownloadTest():
                     line_parts = line.split("...")
                     if line_parts[1].strip().find("ok") != -1:
                         test_type = line_parts[0].strip()
-                        if test_type in tests:
-                            test_type = test_type + "_"
+                        while test_type in tests:
+                            test_type = test_type + self.dupe_append_char
                         tests[test_type] = self.test_results['master'][0]
                         passes = passes + 1
                         print "%d: %s - %s" % (passes, test_type, tests[line_parts[0].strip()])
                     else:
                         test_type = line_parts[0].strip()
-                        if test_type in tests:
-                            test_type = test_type + "_"
+                        while test_type in tests:
+                            test_type = test_type + self.dupe_append_char
                         tests[test_type] = self.test_results['master'][1]
                         fails = fails + 1
                         print "%d: %s - %s" % (fails, test_type, tests[line_parts[0].strip()])
@@ -106,12 +111,12 @@ class TravisDownloadTest():
         tests = {}
         test_lines = False
         unmatched_line = False
+        first_test = False
         passes = 0
         fails = 0
         test_type = ""
         for line in log_data:
             if test_lines:
-    #            print line
                 if line.find("PASSED") != -1:
                     if not unmatched_line:
                         line_parts = line.split("[32m")
@@ -119,8 +124,8 @@ class TravisDownloadTest():
                         test_type = test_type.split()[0]
                     else:
                         unmatched_line = False
-                    if test_type in tests:
-                        test_type = test_type + "_"
+                    while test_type in tests:
+                        test_type = test_type + self.dupe_append_char
                     tests[test_type] = self.test_results['master'][0]
                     passes = passes + 1
                     print "%d: %s - %s" % (passes, test_type, tests[test_type])
@@ -131,22 +136,25 @@ class TravisDownloadTest():
                         test_type = test_type.split()[0]
                     else:
                         unmatched_line = False
-                        
-                    if test_type in tests:
-                        test_type = test_type + "_"
+
+                    while test_type in tests:
+                        test_type = test_type + self.dupe_append_char
                     tests[test_type] = self.test_results['master'][1]
                     fails = fails + 1
                     print "%d: %s - %s" % (fails, test_type, tests[test_type])
-                elif line.find("FAILURES") != -1:
+                elif line.find("passed in") != -1:
                     test_lines = False
                 else:
-                    print "Line w/o results"
-                    if line.find("::") != -1:
-                        test_type = line.split("::")[1].strip()
-                        test_type = test_type.split()[0]
+                    if not first_test:
+                        if (line.find("[0m") != -1) & (len(line) < 10):
+                            first_test = True
                     else:
-                        test_type = "unknown test"
-                    unmatched_line = True
+                        if line.find("::") != -1:
+                            test_type = line.split("::")[1].strip()
+                            test_type = test_type.split()[0]
+                        else:
+                            test_type = "unknown test"
+                        unmatched_line = True
 
             else:
                 if line.find("test session starts") != -1:
@@ -172,8 +180,9 @@ class TravisDownloadTest():
                     line_parts = line.split("[32m")
                     test_type = line_parts[-1].strip().strip("[39m")
                     if len(test_type):
-                        if test_type in tests:
-                            test_type = test_type + "_"
+                        while test_type in tests:
+                            print "Duplicate test found"
+                            test_type = test_type + self.dupe_append_char
                         tests[test_type] = self.test_results['master'][0]
                         passes = passes + 1
                         print "%d: %s - %s" % (passes, test_type, tests[test_type])
@@ -181,8 +190,9 @@ class TravisDownloadTest():
                     line_parts = line.split("[31m")
                     test_type = line_parts[-1].strip().strip("[39m")
                     if len(test_type):
-                        if test_type in tests:
-                            test_type = test_type + "_"
+                        while test_type in tests:
+                            print "Duplicate test found"
+                            test_type = test_type + self.dupe_append_char
                         tests[test_type] = self.test_results['master'][1]
                         fails = fails + 1
                         print "%d: %s - %s" % (fails, test_type, tests[test_type])
