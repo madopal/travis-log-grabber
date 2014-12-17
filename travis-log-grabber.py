@@ -53,11 +53,9 @@ class TravisDownloadTest():
     def __init__(self):
         with open("travis_conf.yaml", 'r') as config_file:
             self.yaml_conf = yaml.load(config_file)
-            print self.yaml_conf
             if 'REPOS' in self.yaml_conf:
                 self.repo_data = self.yaml_conf['REPOS']
             if 'SETTINGS' in self.yaml_conf:
-                print self.yaml_conf['SETTINGS']
                 if 'JSON_PATH' in self.yaml_conf['SETTINGS']:
                     self.json_path = self.yaml_conf['SETTINGS']['JSON_PATH']
                 if 'JSON_FILENAME' in self.yaml_conf['SETTINGS']:
