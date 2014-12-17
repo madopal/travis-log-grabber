@@ -93,14 +93,14 @@ class TravisDownloadTest():
                             test_type = test_type + self.dupe_append_char
                         tests[test_type] = self.test_results['master'][0]
                         passes = passes + 1
-                        print "%d: %s - %s" % (passes, test_type, tests[line_parts[0].strip()])
+#                        print "%d: %s - %s" % (passes, test_type, tests[line_parts[0].strip()])
                     else:
                         test_type = line_parts[0].strip()
                         while test_type in tests:
                             test_type = test_type + self.dupe_append_char
                         tests[test_type] = self.test_results['master'][1]
                         fails = fails + 1
-                        print "%d: %s - %s" % (fails, test_type, tests[line_parts[0].strip()])
+#                        print "%d: %s - %s" % (fails, test_type, tests[line_parts[0].strip()])
                 else:
                     if line.find("-----------------") != -1:
                         test_lines = False
@@ -110,7 +110,6 @@ class TravisDownloadTest():
                     test_lines = True
 
         print "%d pass, %d fail, %d total" % (passes, fails, passes + fails)
-        print "%d items in dict" % len(tests)
         tests['totals'] = [passes, fails]
         return tests
 
@@ -138,7 +137,7 @@ class TravisDownloadTest():
                         test_type = test_type + self.dupe_append_char
                     tests[test_type] = self.test_results['master'][0]
                     passes = passes + 1
-                    print "%d: %s - %s" % (passes, test_type, tests[test_type])
+#                    print "%d: %s - %s" % (passes, test_type, tests[test_type])
                 elif line.find("FAILED") != -1:
                     if not unmatched_line:
                         line_parts = line.split("[31m")
@@ -151,7 +150,7 @@ class TravisDownloadTest():
                         test_type = test_type + self.dupe_append_char
                     tests[test_type] = self.test_results['master'][1]
                     fails = fails + 1
-                    print "%d: %s - %s" % (fails, test_type, tests[test_type])
+#                    print "%d: %s - %s" % (fails, test_type, tests[test_type])
                 elif line.find("passed in") != -1:
                     test_lines = False
                 else:
@@ -171,7 +170,6 @@ class TravisDownloadTest():
                     test_lines = True
 
         print "%d pass, %d fail, %d total" % (passes, fails, passes + fails)
-        print "%d items in dict" % len(tests)
         tests['totals'] = [passes, fails]
 
         return tests
@@ -191,30 +189,27 @@ class TravisDownloadTest():
                     test_type = line_parts[-1].strip().strip("[39m")
                     if len(test_type):
                         while test_type in tests:
-                            print "Duplicate test found"
                             test_type = test_type + self.dupe_append_char
                         tests[test_type] = self.test_results['master'][0]
                         passes = passes + 1
-                        print "%d: %s - %s" % (passes, test_type, tests[test_type])
+#                        print "%d: %s - %s" % (passes, test_type, tests[test_type])
                 elif line.find("[31m") != -1:
                     line_parts = line.split("[31m")
                     test_type = line_parts[-1].strip().strip("[39m")
                     if len(test_type):
                         while test_type in tests:
-                            print "Duplicate test found"
                             test_type = test_type + self.dupe_append_char
                         tests[test_type] = self.test_results['master'][1]
                         fails = fails + 1
-                        print "%d: %s - %s" % (fails, test_type, tests[test_type])
+#                        print "%d: %s - %s" % (fails, test_type, tests[test_type])
                 if line.find("SUMMARY:") != -1:
                     test_lines = False
 
             else:
                 if line.find("Start:") != -1:
                     test_lines = True
-        
+
         print "%d pass, %d fail, %d total" % (passes, fails, passes + fails)
-        print "%d items in dict" % len(tests)
         tests['totals'] = [passes, fails]
         return tests
 
